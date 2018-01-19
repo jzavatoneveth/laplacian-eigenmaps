@@ -26,13 +26,11 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %   'Sigma' - A real scalar speciying the standard deviation of the
 %                    Gaussian heat kernel used. Default: 1
 %
-%   'Verbose' - 0, 1 or 2. Controls the level of detail of command 
+%   'Verbose' - 0 or 1. Controls the level of detail of command 
 %                    line display. Default: 1. 
 %                           0: Do not display anything
 %                           1: Display summary information and timing after
 %                           different algorithm stages. 
-%                           2: Same as (1), but with the addition of ARPACK
-%                           terminal output.
 % 
 %
 %   References:
