@@ -26,12 +26,12 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %   'Sigma' - A real scalar speciying the standard deviation of the
 %                    Gaussian heat kernel used. Default: 1
 %
-%   'Verbose' - 0 or 1. Controls the level of detail of command 
-%                    line display. Default: 1. 
+%   'Verbose' - 0 or 1. Controls the level of detail of command
+%                    line display. Default: 1.
 %                           0: Do not display anything
 %                           1: Display summary information and timing after
-%                           different algorithm stages. 
-% 
+%                           different algorithm stages.
+%
 %
 %   References:
 %       [1] Belkin, Mikhail, and Partha Niyogi. "Laplacian eigenmaps for
@@ -47,7 +47,7 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %
 %       [4] Van Der Maaten, Laurens, Eric Postma, and Jaap Van den Herik.
 %           "Dimensionality reduction: a comparative review." J Mach Learn
-%           Res 10 (2009): 66-71. 
+%           Res 10 (2009): 66-71.
 %
 %
 %   Example:
@@ -62,22 +62,22 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %       scatter3(X(:,1),X(:,2),X(:,3),10,t,'fill');
 %       subplot(1,2,2); title('Embedding');
 %       scatter(Y(:,1),Y(:,2),10,t,'fill');
-%       
+%
 %
 % MIT License
-% 
+%
 % Copyright (c) 2017 Jacob Zavatone-Veth
-% 
+%
 % Permission is hereby granted, free of charge, to any person obtaining a copy
 % of this software and associated documentation files (the "Software"), to deal
 % in the Software without restriction, including without limitation the rights
 % to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 % copies of the Software, and to permit persons to whom the Software is
 % furnished to do so, subject to the following conditions:
-% 
+%
 % The above copyright notice and this permission notice shall be included in all
 % copies or substantial portions of the Software.
-% 
+%
 % THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 % IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 % FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -128,7 +128,7 @@ tic;
 % Form the adjacency matrix
 A = sparse(repmat((1:n)', 1, nneighbors+1), ind, A, n, n);
 
-% Take the elementwise maximum to form an undirected graph
+% Symmetrize the adjacency matrix to form an undirected graph
 A = max(A, A');
 
 % Scale the adjacency matrix so the maximal distance is 1
@@ -136,15 +136,20 @@ A = A.^2;
 max_distance = full(max(A(:)));
 A = A./max_distance;
 
-% Find the connected components of the graph
-bins = conncomp(graph(A));
+% Build an undirected graph from the adjacency matrix
+G = graph(A);
 
-% If there are multiple connected components, discard all but the first
-uniqueBins = unique(bins);
-if length(uniqueBins)>1
-    [~,num] = max(arrayfun(@(a) nnz(bins==a), uniqueBins));
-    first_conn_comp = find(bins == num);
-    A = A(first_conn_comp,first_conn_comp);
+% Find the connected components of the graph
+[bins] = conncomp(G, 'OutputForm', 'cell');
+
+% If there are multiple connected components, discard all but the largest
+if length(bins) > 1
+    [~, idx] = max(cellfun(@nnz, bins));
+    inds = 1:length(bins);
+    inds = inds(inds~=idx);
+    for ind = inds
+        A(bins{ind}, bins{ind}) = 0;
+    end
 end
 
 elapsed(2) = toc;
@@ -158,7 +163,7 @@ tic;
 % Evaluate Gaussian kernel on nonzero elements of the adjacency matrix
 A = spfun(@(x) exp(-x / (2 * kernelstddev ^ 2)), A);
 
-% Construct diagonal weight matrix
+% Construct the diagonal degree matrix
 D = diag(sum(A, 2));
 
 % Compute the (unnormalized) graph Laplacian
@@ -216,4 +221,3 @@ if verbose>0
 end
 
 end
-
