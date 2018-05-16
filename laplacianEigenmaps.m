@@ -133,7 +133,7 @@ A = max(A, A');
 
 % Scale the adjacency matrix so the maximal distance is 1
 A = A.^2;
-max_distance = full(max(A(:)));
+max_distance = max(nonzeros(A));
 A = A./max_distance;
 
 % Build an undirected graph from the adjacency matrix
@@ -144,7 +144,12 @@ G = graph(A);
 
 % If there are multiple connected components, discard all but the largest
 if length(bins) > 1
+    fprintf('Discarding %d connected components.\n', length(bins)-1);
+
+    % Find which connected component is the largest
     [~, idx] = max(cellfun(@nnz, bins));
+
+    % Discard all other connected components
     inds = 1:length(bins);
     inds = inds(inds~=idx);
     for ind = inds
