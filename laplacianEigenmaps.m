@@ -1,9 +1,8 @@
 function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %LAPLACIANEIGENMAPS Nonlinear dimensionality reduction using Laplacian
 %eigenmaps.
-%   Y = laplacianEigenmaps(X) returns the representation of the N by D
-%   matrix X in the two-dimensional space. Each row of X represents an
-%   observation.
+%   Y = laplacianEigenmaps(X) returns the embedding of the N by D matrix X
+%   into two dimensions. Each row of X represents an observation.
 %
 %   [Y, output] = laplacianEigenmaps(X) returns a structure containing
 %   details of the embedding.
@@ -13,9 +12,8 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %   details of the embedding.
 %
 %   Parameters are:
-%   'Distance' - A string specifies the metric of distance when
-%                    calculating distance between observations.
-%                    Default: 'euclidean'
+%   'Distance' - A string specifies the distance metric used to calculate
+%                    distance between observations. Default: 'euclidean' 
 %
 %   'NumNeighbors' - A positive integer specifying the number of neighbors
 %                    to consider in the adjacency matrix. Default: 10
@@ -26,11 +24,11 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %   'Sigma' - A real scalar speciying the standard deviation of the
 %                    Gaussian heat kernel used. Default: 1
 %
-%   'Verbose' - 0 or 1. Controls the level of detail of command
-%                    line display. Default: 1.
-%                           0: Do not display anything
-%                           1: Display summary information and timing after
-%                           different algorithm stages.
+%   'Verbose' - Controls the level of detail of command line display. 
+%                       Default: 1.
+%                       0: Do not display anything
+%                       1: Display summary information and timing after
+%                          different algorithm stages.
 %
 %
 %   References:
@@ -64,27 +62,8 @@ function [ Y, output ] = laplacianEigenmaps( X, varargin )
 %       scatter(Y(:,1),Y(:,2),10,t,'fill');
 %
 %
-% MIT License
+%  (c) 2017 Jacob Zavatone-Veth (MIT License)
 %
-% Copyright (c) 2017 Jacob Zavatone-Veth
-%
-% Permission is hereby granted, free of charge, to any person obtaining a copy
-% of this software and associated documentation files (the "Software"), to deal
-% in the Software without restriction, including without limitation the rights
-% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-% copies of the Software, and to permit persons to whom the Software is
-% furnished to do so, subject to the following conditions:
-%
-% The above copyright notice and this permission notice shall be included in all
-% copies or substantial portions of the Software.
-%
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-% SOFTWARE.
 
 %% Parse arguments
 
@@ -100,15 +79,12 @@ if nargout > 2
 end
 
 % Parse other inputs
-paramNames = {'Distance',	'NumNeighbors',	'NumDimensions',...
-    'Sigma',      'Verbose'};
-defaults   = {'euclidean',	10,             2,...
-    1,           1};
-
+paramNames = {'Distance', 'NumNeighbors', 'NumDimensions', 'Sigma', 'Verbose'};
+defaults   = {'euclidean',	10, 2, 1, 1};
 [metric, nneighbors, ydims, kernelstddev, verbose] =...
     internal.stats.parseArgs(paramNames, defaults, varargin{:});
 
-% Input checking
+% Validate inputs
 if ydims > d
     error('LaplacianEigenmaps:Invalid output dimensionality.');
 end
